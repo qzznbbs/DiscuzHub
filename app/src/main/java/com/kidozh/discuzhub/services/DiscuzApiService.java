@@ -1,9 +1,12 @@
 package com.kidozh.discuzhub.services;
 
+import com.kidozh.discuzhub.results.BBSIndexResult;
 import com.kidozh.discuzhub.results.BaseResult;
+import com.kidozh.discuzhub.results.DisplayThreadsResult;
 import com.kidozh.discuzhub.results.FavoriteForumResult;
 import com.kidozh.discuzhub.results.ApiMessageActionResult;
 import com.kidozh.discuzhub.results.FavoriteThreadResult;
+import com.kidozh.discuzhub.results.HotForumsResult;
 import com.kidozh.discuzhub.results.LoginResult;
 import com.kidozh.discuzhub.results.UserNoteListResult;
 import com.kidozh.discuzhub.results.VariableResults;
@@ -80,4 +83,14 @@ public interface DiscuzApiService {
     @GET(DISCUZ_API_PATH+"?version=4&module=login&mod=logging&action=login")
     Call<LoginResult> getLoginResult();
 
+    @GET(DISCUZ_API_PATH+"?version=4&module=hotforum")
+    Call<HotForumsResult> hotForumResult();
+
+    @GET(DISCUZ_API_PATH+"?version=4&module=hotthread")
+    Call<DisplayThreadsResult> hotThreadResult(
+            @Query("page") int page
+    );
+
+    @GET(DISCUZ_API_PATH+"?version=4&module=forumindex")
+    Call<BBSIndexResult> indexResult();
 }

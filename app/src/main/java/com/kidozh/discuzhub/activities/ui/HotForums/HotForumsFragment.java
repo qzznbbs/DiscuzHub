@@ -14,11 +14,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.kidozh.discuzhub.R;
+import com.kidozh.discuzhub.activities.ui.DashBoard.DashBoardViewModel;
 import com.kidozh.discuzhub.adapter.HotForumAdapter;
 import com.kidozh.discuzhub.entities.bbsInformation;
 import com.kidozh.discuzhub.entities.forumUserBriefInfo;
@@ -28,7 +28,7 @@ import com.kidozh.discuzhub.utilities.URLUtils;
 import com.kidozh.discuzhub.utilities.bbsConstUtils;
 import com.kidozh.discuzhub.utilities.networkUtils;
 
-import org.checkerframework.checker.units.qual.A;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -68,15 +68,17 @@ public class HotForumsFragment extends Fragment {
 
     @BindView(R.id.fragment_hotforum_swipeRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.fragment_hotforum_empty_icon)
+    @BindView(R.id.error_icon)
     ImageView emptyIcon;
-    @BindView(R.id.fragment_hotforum_no_item_textView)
-    TextView errorTextView;
+    @BindView(R.id.error_content)
+    TextView errorText;
+    @BindView(R.id.error_value)
+    TextView errorValue;
 
     @BindView(R.id.fragment_hotforum_recyclerview)
     RecyclerView recyclerView;
 
-    @BindView(R.id.hot_forum_empty_view)
+    @BindView(R.id.error_view)
     View emptyView;
 
     @Override
@@ -85,6 +87,7 @@ public class HotForumsFragment extends Fragment {
         ButterKnife.bind(this,view);
         viewModel = new ViewModelProvider(this).get(HotForumsViewModel.class);
         viewModel.setBBSInfo(bbsInfo,userBriefInfo);
+        dashBoardViewModel = new ViewModelProvider(this).get(DashBoardViewModel.class);
         configureRecyclerview();
         bindViewModel();
         configureSwipeRefreshLayout();
@@ -94,10 +97,11 @@ public class HotForumsFragment extends Fragment {
 
 
     HotForumsViewModel viewModel;
+    DashBoardViewModel dashBoardViewModel;
 
     private void configureRecyclerview(){
         adapter = new HotForumAdapter(bbsInfo,userBriefInfo);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),3));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
 
@@ -110,17 +114,19 @@ public class HotForumsFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
-
-        viewModel.isErrorMutableLiveData.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if(aBoolean){
-                    errorTextView.setText(viewModel.errorString.getValue());
-                    emptyIcon.setImageResource(R.drawable.ic_error_outline_24px);
-                    emptyView.setVisibility(View.VISIBLE);
-                }
+        viewModel.errorMessageMutableLiveData.observe(getViewLifecycleOwner(),errorMessage -> {
+            if(errorMessage!=null){
+                Log.d(TAG,"Set error message "+errorMessage.key);
+                emptyView.setVisibility(View.VISIBLE);
+                errorText.setText(errorMessage.content);
+                errorValue.setText(errorMessage.key);
+                emptyIcon.setImageResource(R.drawable.ic_error_outline_24px);
+            }
+            else {
+                emptyView.setVisibility(View.GONE);
             }
         });
+
 
         viewModel.getHotForumsResult().observe(getViewLifecycleOwner(), new Observer<HotForumsResult>() {
             @Override
@@ -131,25 +137,26 @@ public class HotForumsFragment extends Fragment {
                 }
                 if(hotForumsResult == null ||
                         hotForumsResult.variables == null){
-
-                    errorTextView.setText(R.string.empty_hot_forum);
-                    emptyIcon.setImageResource(R.drawable.ic_user_group_empty_24dp);
-                    emptyView.setVisibility(View.VISIBLE);
+                    adapter.setHotForumList(new ArrayList<>());
                 }
                 else {
                     if(hotForumsResult.variables.hotForumList == null
                     || hotForumsResult.variables.hotForumList.size() == 0){
-                        errorTextView.setText(R.string.empty_hot_forum);
+                        errorText.setText(R.string.empty_hot_forum);
                         emptyIcon.setImageResource(R.drawable.ic_user_group_empty_24dp);
                         emptyView.setVisibility(View.VISIBLE);
+
                     }
                     else {
                         emptyView.setVisibility(View.GONE);
 
                     }
+
                     Log.d(TAG,"Get hot forums "+hotForumsResult.variables.hotForumList);
                     adapter.setHotForumList(hotForumsResult.variables.hotForumList);
+
                 }
+                dashBoardViewModel.hotForumCountMutableLiveData.postValue(adapter.getItemCount());
             }
         });
 

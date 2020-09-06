@@ -31,29 +31,42 @@
             </androidx.recyclerview.widget.RecyclerView>
 
             <LinearLayout
-                android:id="@+id/hot_forum_empty_view"
+                android:id="@+id/error_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ImageView
-                    android:id="@+id/fragment_hotforum_empty_icon"
+                    android:id="@+id/error_icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:visibility="gone"
-                    app:srcCompat="@drawable/ic_user_group_empty_24dp"
-                    tools:visibility="visible" />
+                    app:srcCompat="@drawable/ic_user_group_empty_24dp" />
 
                 <TextView
-                    android:id="@+id/fragment_hotforum_no_item_textView"
+                    android:id="@+id/error_value"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/empty_hot_forum"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:lines="1"
                     android:textAlignment="center"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/colorTextDefault"
+                    tools:text="@tools:sample/us_phones" />
+
+                <TextView
+                    android:id="@+id/error_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/empty_hot_forum"
+                    android:textAlignment="center" />
             </LinearLayout>
 
 
